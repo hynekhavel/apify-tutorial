@@ -91,27 +91,38 @@ exports.handleOffers = async ({ request, page }) => {
     await page.waitForTimeout(2000);
 
     const output = [];
-    const pinnedOfferName = await page.$eval(
-        '.aod-pinned-offer #aod-offer-soldBy .a-col-right > .a-size-small',
-        (el) => el.textContent.trim(),
-    );
 
-    const pinnedOfferPrice = await page.$eval(
-        '.aod-pinned-offer .a-price .a-offscreen',
-        (el) => el.textContent.trim(),
-    );
+    const pinnedOfferNameSelector =
+        '.aod-pinned-offer #aod-offer-soldBy .a-col-right > .a-size-small';
+    const pinnedOfferPriceSelector = '.aod-pinned-offer .a-price .a-offscreen';
+    const pinnedOfferShippingSelector =
+        '.aod-pinned-offer #pinned-offer-top-id .a-row:nth-of-type(3) .a-size-base.a-color-base';
 
-    const pinnedOfferShipping = await page.$eval(
-        '.aod-pinned-offer #pinned-offer-top-id .a-row:nth-of-type(3) .a-size-base.a-color-base',
-        (el) => el.textContent.trim(),
-    );
+    if (
+        (await page.$(pinnedOfferNameSelector)) !== null &&
+        (await page.$(pinnedOfferPriceSelector)) !== null &&
+        (await page.$(pinnedOfferShippingSelector)) !== null
+    ) {
+        const pinnedOfferName = await page.$eval(
+            pinnedOfferNameSelector,
+            (el) => el.textContent.trim(),
+        );
+        const pinnedOfferPrice = await page.$eval(
+            pinnedOfferPriceSelector,
+            (el) => el.textContent.trim(),
+        );
+        const pinnedOfferShipping = await page.$eval(
+            pinnedOfferShippingSelector,
+            (el) => el.textContent.trim(),
+        );
 
-    output.push({
-        ...data,
-        sellerName: pinnedOfferName,
-        price: pinnedOfferPrice,
-        shippingPrice: parseShipping(pinnedOfferShipping),
-    });
+        output.push({
+            ...data,
+            sellerName: pinnedOfferName,
+            price: pinnedOfferPrice,
+            shippingPrice: parseShipping(pinnedOfferShipping),
+        });
+    }
 
     const noItems = await page.$('.aod-no-offer-normal-font');
 
