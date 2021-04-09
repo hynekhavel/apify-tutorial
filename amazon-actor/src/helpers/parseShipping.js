@@ -2,8 +2,8 @@ exports.parseShipping = (shipping) => {
     const priceRegex = /\$[0-9]+.{1}[0-9]*/;
     const freeRegex = /free/i;
 
-    if (shipping.search("This item cannot be shipped") > -1) {
-        return "This item cannot be shipped to your location";
+    if (shipping.search('This item cannot be shipped') > -1) {
+        return 'This item cannot be shipped to your location';
     }
 
     const priceMatch = shipping.match(priceRegex);
@@ -13,7 +13,7 @@ exports.parseShipping = (shipping) => {
 
     const freeMatch = shipping.match(freeRegex);
     if (freeMatch && freeMatch.length) {
-        return "free";
+        return 'free';
     }
 
     return shipping;

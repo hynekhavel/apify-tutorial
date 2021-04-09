@@ -1,7 +1,7 @@
-const Apify = require("apify");
-const randomUA = require("modern-random-ua");
+const Apify = require('apify');
+const randomUA = require('modern-random-ua');
 
-const { handleOffers, handleList, handleDetail } = require("./src/routes");
+const { handleOffers, handleList, handleDetail } = require('./src/routes');
 
 const {
     utils: { log },
@@ -12,13 +12,13 @@ const {
     LABEL_LIST,
     LABEL_DETAIL,
     LABEL_OFFERS,
-} = require("./src/const");
+} = require('./src/const');
 
 Apify.main(async () => {
     let results = [];
     const { keyword } = await Apify.getInput();
 
-    const requestList = await Apify.openRequestList("start-url", [
+    const requestList = await Apify.openRequestList('start-url', [
         {
             url: `${SEARCH_URL}${keyword}`,
             userData: { label: LABEL_LIST },
@@ -33,7 +33,7 @@ Apify.main(async () => {
 
     if (!Apify.isAtHome()) {
         //launchOptions.headless = false;
-        launchOptions.executablePath = "/usr/bin/chromium-browser";
+        launchOptions.executablePath = '/usr/bin/chromium-browser';
     }
 
     const crawler = new Apify.PuppeteerCrawler({
@@ -61,7 +61,7 @@ Apify.main(async () => {
             } = context;
 
             try {
-                log.info("Page opened.", {
+                log.info('Page opened.', {
                     label,
                     url,
                     proxy: proxyInfo.url,
@@ -90,22 +90,22 @@ Apify.main(async () => {
         },
     });
 
-    log.info("Starting the crawl.");
+    log.info('Starting the crawl.');
     await crawler.run();
-    log.info("Crawl finished.");
+    log.info('Crawl finished.');
 
     const dataset = await Apify.openDataset();
     await dataset.pushData(results);
 
     const datasetInfo = await dataset.getInfo();
     log.info(
-        `Data saved to dataset: https://api.apify.com/v2/datasets/${datasetInfo.id}/items?clean=true&format=json`
+        `Data saved to dataset: https://api.apify.com/v2/datasets/${datasetInfo.id}/items?clean=true&format=json`,
     );
 
     try {
-        await Apify.call("apify/send-mail", {
-            to: "hynek@hynekhavel.cz",
-            subject: "Hynek Havel - This is for the Apify SDK exercise",
+        await Apify.call('apify/send-mail', {
+            to: 'hynek@hynekhavel.cz',
+            subject: 'Hynek Havel - This is for the Apify SDK exercise',
             text: `Link to dataset: https://api.apify.com/v2/datasets/${datasetInfo.id}/items?clean=true&format=json`,
         });
     } catch (err) {
