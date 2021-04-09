@@ -1,18 +1,13 @@
 const Apify = require('apify');
 
 const { parseShipping } = require('./helpers/parseShipping');
-const { TIME_MAIN_ELEMENT } = require('../src/const');
+const { TIME_MAIN_ELEMENT } = require('./const');
 
 const {
     utils: { log },
 } = Apify;
 
-const {
-    LABEL_DETAIL,
-    LABEL_OFFERS,
-    DETAIL_URL,
-    OFFER_URL,
-} = require('./const');
+const { LABEL_DETAIL, LABEL_OFFERS, DETAIL_URL, OFFER_URL } = require('./const');
 
 exports.handleList = async ({ page }) => {
     const requestQueue = await Apify.openRequestQueue();
@@ -22,10 +17,7 @@ exports.handleList = async ({ page }) => {
     const items = await page.$$('.s-search-results > .s-result-item.s-asin');
 
     for (const item of items) {
-        const asin = await page.evaluate(
-            (el) => el.getAttribute('data-asin'),
-            item,
-        );
+        const asin = await page.evaluate((el) => el.getAttribute('data-asin'), item);
 
         await requestQueue.addRequest(
             {
@@ -92,29 +84,18 @@ exports.handleOffers = async ({ request, page }) => {
 
     const output = [];
 
-    const pinnedOfferNameSelector =
-        '.aod-pinned-offer #aod-offer-soldBy .a-col-right > .a-size-small';
+    const pinnedOfferNameSelector = '.aod-pinned-offer #aod-offer-soldBy .a-col-right > .a-size-small';
     const pinnedOfferPriceSelector = '.aod-pinned-offer .a-price .a-offscreen';
-    const pinnedOfferShippingSelector =
-        '.aod-pinned-offer #pinned-offer-top-id .a-row:nth-of-type(3) .a-size-base.a-color-base';
+    const pinnedOfferShippingSelector = '.aod-pinned-offer #pinned-offer-top-id .a-row:nth-of-type(3) .a-size-base.a-color-base';
 
     if (
-        (await page.$(pinnedOfferNameSelector)) !== null &&
-        (await page.$(pinnedOfferPriceSelector)) !== null &&
-        (await page.$(pinnedOfferShippingSelector)) !== null
+        (await page.$(pinnedOfferNameSelector)) !== null
+        && (await page.$(pinnedOfferPriceSelector)) !== null
+        && (await page.$(pinnedOfferShippingSelector)) !== null
     ) {
-        const pinnedOfferName = await page.$eval(
-            pinnedOfferNameSelector,
-            (el) => el.textContent.trim(),
-        );
-        const pinnedOfferPrice = await page.$eval(
-            pinnedOfferPriceSelector,
-            (el) => el.textContent.trim(),
-        );
-        const pinnedOfferShipping = await page.$eval(
-            pinnedOfferShippingSelector,
-            (el) => el.textContent.trim(),
-        );
+        const pinnedOfferName = await page.$eval(pinnedOfferNameSelector, (el) => el.textContent.trim());
+        const pinnedOfferPrice = await page.$eval(pinnedOfferPriceSelector, (el) => el.textContent.trim());
+        const pinnedOfferShipping = await page.$eval(pinnedOfferShippingSelector, (el) => el.textContent.trim());
 
         output.push({
             ...data,
@@ -137,15 +118,9 @@ exports.handleOffers = async ({ request, page }) => {
         }, scrollSectionSelector);
         await page.waitForTimeout(1000);
 
-        const endOfResultsClass = await page.$eval(
-            '#aod-footer #aod-end-of-results',
-            (el) => el.className,
-        );
+        const endOfResultsClass = await page.$eval('#aod-footer #aod-end-of-results', (el) => el.className);
 
-        const seeMoreClass = await page.$eval(
-            '#aod-footer #aod-show-more-offers',
-            (el) => el.className,
-        );
+        const seeMoreClass = await page.$eval('#aod-footer #aod-show-more-offers', (el) => el.className);
 
         if (seeMoreClass.search('aod-hide') < 0) {
             // link show more is visible -> click
@@ -161,14 +136,8 @@ exports.handleOffers = async ({ request, page }) => {
     const offers = await page.$$('#aod-offer-list > .a-section');
     if (offers.length) {
         for (const offer of offers) {
-            const offerName = await offer.$eval(
-                '#aod-offer-soldBy .a-col-right > .a-size-small',
-                (el) => el.textContent.trim(),
-            );
-            const offerPrice = await offer.$eval(
-                '.a-price .a-offscreen',
-                (el) => el.textContent.trim(),
-            );
+            const offerName = await offer.$eval('#aod-offer-soldBy .a-col-right > .a-size-small', (el) => el.textContent.trim());
+            const offerPrice = await offer.$eval('.a-price .a-offscreen', (el) => el.textContent.trim());
             const offerShipping = await offer.$eval(
                 '#aod-offer-price .a-col-right .a-col-left .a-size-base.a-color-base',
                 (el) => el.textContent.trim(),
