@@ -2,17 +2,14 @@ const Apify = require('apify');
 const randomUA = require('modern-random-ua');
 
 const { handleOffers, handleList, handleDetail } = require('./src/routes');
+const { SEARCH_URL, LABEL_LIST, LABEL_DETAIL, LABEL_OFFERS } = require('./src/const');
+
+const MAX_CONCURRENCY = 1;
+const MAX_REQUEST_RETRIES = 5;
 
 const {
     utils: { log },
 } = Apify;
-
-const {
-    SEARCH_URL,
-    LABEL_LIST,
-    LABEL_DETAIL,
-    LABEL_OFFERS,
-} = require('./src/const');
 
 Apify.main(async () => {
     let results = [];
@@ -32,7 +29,6 @@ Apify.main(async () => {
     };
 
     if (!Apify.isAtHome()) {
-        //launchOptions.headless = false;
         launchOptions.executablePath = '/usr/bin/chromium-browser';
     }
 
@@ -42,7 +38,8 @@ Apify.main(async () => {
         proxyConfiguration,
         useSessionPool: true,
         persistCookiesPerSession: true,
-        maxConcurrency: 1,
+        maxConcurrency: MAX_CONCURRENCY,
+        maxRequestRetries: MAX_REQUEST_RETRIES,
         launchContext: {
             useChrome: true,
             stealth: true,
@@ -98,9 +95,7 @@ Apify.main(async () => {
     await dataset.pushData(results);
 
     const datasetInfo = await dataset.getInfo();
-    log.info(
-        `Data saved to dataset: https://api.apify.com/v2/datasets/${datasetInfo.id}/items?clean=true&format=json`,
-    );
+    log.info(`Data saved to dataset: https://api.apify.com/v2/datasets/${datasetInfo.id}/items?clean=true&format=json`);
 
     try {
         await Apify.call('apify/send-mail', {
@@ -109,7 +104,7 @@ Apify.main(async () => {
             text: `Link to dataset: https://api.apify.com/v2/datasets/${datasetInfo.id}/items?clean=true&format=json`,
         });
     } catch (err) {
-        //call apify/send-mail throw weird error. Temporarily catched.
+        // call apify/send-mail throw weird error. Temporarily catched.
         log.warning(err);
     }
 });

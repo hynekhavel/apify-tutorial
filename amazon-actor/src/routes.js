@@ -1,6 +1,7 @@
 const Apify = require('apify');
 
 const { parseShipping } = require('./helpers/parseShipping');
+const { TIME_MAIN_ELEMENT } = require('../src/const');
 
 const {
     utils: { log },
@@ -16,7 +17,7 @@ const {
 exports.handleList = async ({ page }) => {
     const requestQueue = await Apify.openRequestQueue();
     await page.waitForSelector('.s-search-results', {
-        timeout: 3000,
+        timeout: TIME_MAIN_ELEMENT,
     });
     const items = await page.$$('.s-search-results > .s-result-item.s-asin');
 
@@ -45,7 +46,7 @@ exports.handleDetail = async ({ request, page }) => {
     } = request;
 
     await page.waitForSelector('#productTitle', {
-        timeout: 3000,
+        timeout: TIME_MAIN_ELEMENT,
     });
     const requestQueue = await Apify.openRequestQueue();
     const titleEl = await page.waitForSelector('title');
@@ -81,11 +82,11 @@ exports.handleOffers = async ({ request, page }) => {
     } = request;
 
     await page.waitForSelector('#productTitle', {
-        timeout: 3000,
+        timeout: TIME_MAIN_ELEMENT,
     });
     await page.waitForTimeout(2000);
     await page.waitForSelector('#aod-container', {
-        timeout: 3000,
+        timeout: TIME_MAIN_ELEMENT,
     });
     await page.waitForTimeout(2000);
 
