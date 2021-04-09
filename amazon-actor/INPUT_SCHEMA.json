@@ -1,0 +1,16 @@
+{
+    "title": "Amazon actor Template",
+    "description": "lorem ipsum",
+    "type": "object",
+    "schemaVersion": 1,
+    "properties": {
+        "keyword": {
+            "title": "Amazon keyword",
+            "type": "string",
+            "description": "Scraped keyword",
+            "editor": "textfield",
+            "default": "phone"
+        }
+    },
+    "required": ["keyword"]
+}
