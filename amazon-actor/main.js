@@ -2,12 +2,7 @@ const Apify = require('apify');
 const randomUA = require('modern-random-ua');
 
 const { handleOffers, handleList, handleDetail } = require('./src/routes');
-const {
-    SEARCH_URL,
-    LABEL_LIST,
-    LABEL_DETAIL,
-    LABEL_OFFERS,
-} = require('./src/const');
+const { SEARCH_URL, LABEL_LIST, LABEL_DETAIL, LABEL_OFFERS } = require('./src/const');
 
 const MAX_CONCURRENCY = 1;
 const MAX_REQUEST_RETRIES = 5;
@@ -18,7 +13,7 @@ const {
 
 Apify.main(async () => {
     let results = [];
-    const { keyword } = await Apify.getInput();
+    const { keyword, email } = await Apify.getInput();
 
     const requestList = await Apify.openRequestList('start-url', [
         {
@@ -31,10 +26,6 @@ Apify.main(async () => {
 
     const launchOptions = {
         headless: false,
-        defaultViewport: {
-            width: 1024 + Math.floor(Math.random() * 100),
-            height: 768 + Math.floor(Math.random() * 100),
-        },
     };
 
     if (!Apify.isAtHome()) {
@@ -73,10 +64,10 @@ Apify.main(async () => {
                     proxy: proxyInfo.url,
                 });
 
-                await page.viewport({
+                /* await page.viewport({
                     width: 1024 + Math.floor(Math.random() * 100),
                     height: 768 + Math.floor(Math.random() * 100),
-                });
+                }); */
 
                 if (label === LABEL_LIST) {
                     await handleList(context);
@@ -104,16 +95,16 @@ Apify.main(async () => {
     await dataset.pushData(results);
 
     const datasetInfo = await dataset.getInfo();
-    log.info(
-        `Data saved to dataset: https://api.apify.com/v2/datasets/${datasetInfo.id}/items?clean=true&format=json`,
-    );
+    log.info(`Data saved to dataset: https://api.apify.com/v2/datasets/${datasetInfo.id}/items?clean=true&format=json`);
 
     try {
-        await Apify.call('apify/send-mail', {
-            to: 'hynek@hynekhavel.cz',
-            subject: 'Hynek Havel - This is for the Apify SDK exercise',
-            text: `Link to dataset: https://api.apify.com/v2/datasets/${datasetInfo.id}/items?clean=true&format=json`,
-        });
+        if (email) {
+            await Apify.call('apify/send-mail', {
+                to: email,
+                subject: 'Hynek Havel - This is for the Apify SDK exercise',
+                text: `Link to dataset: https://api.apify.com/v2/datasets/${datasetInfo.id}/items?clean=true&format=json`,
+            });
+        }
     } catch (err) {
         // call apify/send-mail throw weird error. Temporarily catched.
         log.warning(err);

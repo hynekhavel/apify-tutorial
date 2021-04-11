@@ -10,6 +10,12 @@
             "description": "Scraped keyword",
             "editor": "textfield",
             "default": "phone"
+        },
+        "email": {
+            "title": "Email",
+            "type": "string",
+            "description": "Email for sending results",
+            "editor": "textfield"
         }
     },
     "required": ["keyword"]
